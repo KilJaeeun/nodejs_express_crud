@@ -1,10 +1,10 @@
 // load our app server using express somehow..
 const express = require("express");
 const router = express.Router();
-const morgan = require("morgan");
 const mysql = require("mysql");
 const bodyParser = require("body-parser");
 
+router.use(bodyParser.urlencoded({ extended: false }));
 const pool = mysql.createPool({
     connectionLimit: 10,
     host: "localhost",
@@ -16,8 +16,8 @@ const pool = mysql.createPool({
 
 const getConnection = () => pool;
 router.post("/user_create", (req, res) => {
-    const sing = req.body.sing;
     const name = req.body.name;
+    const sing = req.body.sing;
     let queryString = "INSERT INTO animals (sing, name) VALUES (?,?);";
     const connection = getConnection();
     connection.query(queryString, [sing, name], (err, results, fields) => {
