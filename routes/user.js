@@ -15,7 +15,9 @@ const pool = mysql.createPool({
 });
 
 const getConnection = () => pool;
-router.post("/user_create", (req, res) => {
+
+/* create start */
+router.post("/create", (req, res) => {
     const name = req.body.name;
     const sing = req.body.sing;
     let queryString = "INSERT INTO animals (sing, name) VALUES (?,?);";
@@ -29,7 +31,8 @@ router.post("/user_create", (req, res) => {
         }
     });
 });
-
+/* create end */
+/* read start */
 router.get("/user/:id", (req, res) => {
     console.log("fetching user with id : " + req.params.id);
     const connection = getConnection();
@@ -45,13 +48,53 @@ router.get("/user/:id", (req, res) => {
         console.log("we fetch users successfully");
 
         const users = rows.map((row) => {
-            return { name: row.name, sing: row.sing };
+            return { id: row.animal_id, name: row.name, sing: row.sing };
         });
 
         res.json(users);
     });
 });
+/* read end */
+/* update start */
+router.put("/user/:id", (req, res) => {
+    console.log("fetching user with id : " + req.params.id);
+    const connection = getConnection();
+    const userId = req.params.id; //"INSERT INTO animals (sing, name) VALUES (?,?);";
+    const name = req.body.name;
+    const sing = req.body.sing;
+    let queryString = "UPDATE  animals SET name=?, sing=?  WHERE animal_id=?";
+    connection.query(queryString, [name, sing, userId], (err, rows, fields) => {
+        if (err) {
+            console.log("fail" + err);
+            res.sendStatus(500);
+            res.end();
+            return;
+        }
+        console.log("we fetch users successfully");
+        res.redirect(`/user/${userId}`);
+    });
+});
+/* update end */
 
+/* delete start */
+router.delete("/user/:id", (req, res) => {
+    console.log("fetching user with id : " + req.params.id);
+    const connection = getConnection();
+    const userId = req.params.id;
+    let queryString = "DELETE FROM animals WHERE animal_id=?";
+    connection.query(queryString, [userId], (err, rows, fields) => {
+        if (err) {
+            console.log("fail" + err);
+            res.sendStatus(500);
+            res.end();
+            return;
+        }
+        console.log("we fetch users successfully");
+        res.redirect("/users");
+    });
+});
+/* delete end */
+/* list start */
 router.get("/users", (req, res) => {
     console.log("fetching user with id : " + req.params.id);
     const connection = getConnection();
@@ -67,11 +110,12 @@ router.get("/users", (req, res) => {
         console.log("we fetch users successfully");
 
         const users = rows.map((row) => {
-            return { name: row.name, sing: row.sing };
+            return { id: row.animal_id, name: row.name, sing: row.sing };
         });
 
         res.json(users);
     });
 });
+/* list end*/
 
 module.exports = router;
